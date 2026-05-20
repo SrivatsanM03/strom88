@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strom Sicher | Real-Time Electrocution Prevention & Fault Monitoring System</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-bolt-lightning logo-icon"></i>
+                    <span class="logo-text">STROM SICHER</span>
+                    <span class="logo-tag">PUBLIC SAFETY GRID</span>
+                </div>
+                <h1>Real-Time Electrocution Prevention and Fault Monitoring System</h1>
+            </div>
+            <div class="header-right">
+                <div class="status-badge secure" id="system-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">SYSTEM SECURE</span>
+                </div>
+                <div class="connectivity stable">
+                    <i class="fas fa-wifi" id="wifi-status"></i>
+                    <span id="connectivity-text">CONNECTED</span>
+                </div>
+                <div class="date-time">
+                    <span id="current-date">--/--/----</span>
+                    <span id="current-time">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-grid">
+            <!-- Column 1: Live Monitoring & Alert Panel -->
+            <div class="grid-column col-left">
+                <!-- Live Monitoring Panel (6 metrics) -->
+                <section class="card monitoring-panel">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-simple"></i> Live Telemetry</h2>
+                        <span class="panel-subtitle">ESP32 Stream Active</span>
+                    </div>
+                    <div class="gauge-grid">
+                        <!-- Current Value -->
+                        <div class="status-card" id="current-card">
+                            <span class="label">CURRENT VALUE</span>
+                            <div class="value-wrapper">
+                                <span class="value" id="current-val">0.12</span>
+                                <span class="unit">Amps</span>
+                            </div>
+                            <div class="indicator-bar"><div class="fill" id="current-fill" style="width: 8%"></div></div>
+                        </div>
+
+                        <!-- Voltage Status -->
+                        <div class="status-card" id="voltage-card">
+                            <span class="label">VOLTAGE STATUS</span>
+                            <div class="value-wrapper">
+                                <span class="value nominal" id="voltage-status">NORMAL</span>
+                            </div>
+                            <div class="status-meta" id="voltage-meta">230.4 V RMS</div>
+                        </div>
+
+                        <!-- Fault Status -->
+                        <div class="status-card" id="fault-status-card">
+                            <span class="label">FAULT STATUS</span>
+                            <div class="value-wrapper">
+                                <span class="value nominal" id="fault-status">NOMINAL</span>
+                            </div>
+                            <div class="status-meta" id="fault-meta">No Leakage Detected</div>
+                        </div>
+
+                        <!-- Relay Status -->
+                        <div class="status-card" id="relay-card">
+                            <span class="label">RELAY STATUS</span>
+                            <div class="value-wrapper">
+                                <span class="value active" id="relay-status">ON</span>
+                            </div>
+                            <div class="status-toggle-indicator active" id="relay-indicator"></div>
+                        </div>
+
+                        <!-- Temperature Status -->
+                        <div class="status-card" id="temp-card">
+                            <span class="label">TEMPERATURE</span>
+                            <div class="value-wrapper">
+                                <span class="value" id="temp-val">28.4</span>
+                                <span class="unit">°C</span>
+                            </div>
+                            <div class="indicator-bar"><div class="fill warning-fill" id="temp-fill" style="style: 28%"></div></div>
+                        </div>
+
+                        <!-- Buzzer Status -->
+                        <div class="status-card" id="buzzer-card">
+                            <span class="label">BUZZER STATUS</span>
+                            <div class="value-wrapper">
+                                <span class="value silent" id="buzzer-status">SILENT</span>
+                            </div>
+                            <!-- Audio visualizer bars -->
+                            <div class="visualizer-bars" id="buzzer-visualizer">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Fault Detection Section & Alerts -->
+                <section class="card fault-alert-card secure" id="fault-alert-section">
+                    <div class="fault-content">
+                        <div class="alert-icon-wrapper">
+                            <i class="fas fa-shield-check" id="alert-icon"></i>
+                        </div>
+                        <div class="alert-text">
+                            <h3 id="fault-title">SYSTEM SECURE</h3>
+                            <p id="fault-msg">All parameters within safe operating thresholds. Ground protection active.</p>
+                        </div>
+                    </div>
+                    <div class="isolation-status active" id="isolation-status">
+                        <i class="fas fa-circle-nodes"></i>
+                        <span id="isolation-text">Grid Connection Active</span>
+                    </div>
+                </section>
+
+                <!-- Public Safety Alert Panel -->
+                <section class="card safety-panel" id="safety-panel">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bullhorn"></i> Public Safety Alert</h2>
+                    </div>
+                    <div class="safety-content" id="safety-alert">
+                        <div class="safety-status-indicator">
+                            <i class="fas fa-circle-check"></i>
+                            <span>SYSTEM OPERATING SAFELY</span>
+                        </div>
+                        <p class="safety-message" id="safety-msg">Continuous earth leakage monitoring is active in this sector. Grid line safety is under nominal automated supervision.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Column 2: Graph Analytics & System Architecture -->
+            <div class="grid-column col-mid">
+                <!-- Analytics Graphs -->
+                <section class="card graph-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Analytics & Waveforms</h2>
+                        <div class="tabs">
+                            <button class="tab-btn active" onclick="switchTab('current')">CURRENT</button>
+                            <button class="tab-btn" onclick="switchTab('temp')">TEMPERATURE</button>
+                            <button class="tab-btn" onclick="switchTab('faults')">FAULT EVENTS</button>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-wrapper">
+                        <!-- Current vs Time Chart -->
+                        <div class="chart-container active" id="chart-current-container">
+                            <canvas id="currentChart"></canvas>
+                        </div>
+                        <!-- Temperature vs Time Chart -->
+                        <div class="chart-container" id="chart-temp-container">
+                            <canvas id="tempChart"></canvas>
+                        </div>
+                        <!-- Fault Distribution Chart -->
+                        <div class="chart-container" id="chart-faults-container">
+                            <canvas id="faultChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Architecture Panel -->
+                <section class="card architecture-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-diagram-project"></i> System Flow & Architecture</h2>
+                        <span class="architecture-status" id="flow-status">FLOW ACTIVE</span>
+                    </div>
+                    <div class="architecture-flow">
+                        <!-- Step 1: Sensor -->
+                        <div class="flow-step active" id="step-sensor">
+                            <div class="step-icon"><i class="fas fa-gauge"></i></div>
+                            <span class="step-label">Sensor</span>
+                        </div>
+                        <div class="flow-connector" id="conn-1"></div>
+                        
+                        <!-- Step 2: ESP32 -->
+                        <div class="flow-step active" id="step-esp32">
+                            <div class="step-icon"><i class="fas fa-microchip"></i></div>
+                            <span class="step-label">ESP32</span>
+                        </div>
+                        <div class="flow-connector" id="conn-2"></div>
+                        
+                        <!-- Step 3: Fault Detection -->
+                        <div class="flow-step active" id="step-fault">
+                            <div class="step-icon"><i class="fas fa-brain"></i></div>
+                            <span class="step-label">Fault Detection</span>
+                        </div>
+                        <div class="flow-connector" id="conn-3"></div>
+                        
+                        <!-- Step 4: Relay Cutoff -->
+                        <div class="flow-step active" id="step-relay">
+                            <div class="step-icon"><i class="fas fa-bolt"></i></div>
+                            <span class="step-label">Relay Cutoff</span>
+                        </div>
+                        <div class="flow-connector" id="conn-4"></div>
+                        
+                        <!-- Step 5: GPS Tracking -->
+                        <div class="flow-step active" id="step-gps">
+                            <div class="step-icon"><i class="fas fa-location-crosshairs"></i></div>
+                            <span class="step-label">GPS Tracking</span>
+                        </div>
+                        <div class="flow-connector" id="conn-5"></div>
+                        
+                        <!-- Step 6: Dashboard Alert -->
+                        <div class="flow-step active" id="step-alert">
+                            <div class="step-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                            <span class="step-label">Dashboard Alert</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Column 3: GPS & Event Log -->
+            <div class="grid-column col-right">
+                <!-- GPS Location Section -->
+                <section class="card gps-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-map-location-dot"></i> Live GPS Location</h2>
+                        <span class="gps-lock"><i class="fas fa-lock"></i> GPS Locked</span>
+                    </div>
+                    <div class="gps-content">
+                        <div class="coordinates-grid">
+                            <div class="coord-card">
+                                <span class="label">LATITUDE</span>
+                                <span class="value" id="lat-val">12.9716° N</span>
+                            </div>
+                            <div class="coord-card">
+                                <span class="label">LONGITUDE</span>
+                                <span class="value" id="lon-val">77.5946° E</span>
+                            </div>
+                            <div class="coord-card span-2">
+                                <span class="label">SECTOR CODE</span>
+                                <span class="value" id="sector-val">SZ-JNC-4B (Malleswaram Node)</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Radar Grid Map Placeholder -->
+                        <div class="map-radar-wrapper" id="map-area">
+                            <div class="radar-scan"></div>
+                            <div class="radar-circle rc1"></div>
+                            <div class="radar-circle rc2"></div>
+                            <div class="radar-circle rc3"></div>
+                            <div class="radar-crosshair-h"></div>
+                            <div class="radar-crosshair-v"></div>
+                            
+                            <!-- GPS Marker -->
+                            <div class="map-marker-glow" id="radar-marker"></div>
+                            
+                            <div class="map-overlay-coordinates" id="overlay-coordinates">
+                                LAT: 12.9716 / LON: 77.5946
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Event Log Section -->
+                <section class="card log-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-database"></i> Fault & System Logs</h2>
+                        <button class="clear-log-btn" onclick="clearLogs()"><i class="fas fa-trash-can"></i> Clear</button>
+                    </div>
+                    <div class="log-table-wrapper">
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>TIMESTAMP</th>
+                                    <th>CURRENT</th>
+                                    <th>FAULT TYPE</th>
+                                    <th>RELAY</th>
+                                    <th>LOCATION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-body">
+                                <!-- Log rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer class="main-footer">
+            <div class="footer-info">
+                <strong>Team VoltGuard</strong> | Project Domain: <span>Embedded Systems & IoT</span>
+            </div>
+            <div class="footer-tag">
+                “Designed for Electrical Public Safety”
+            </div>
+            <div class="system-id">
+                NODE: ESP32_VGB_09_A
+            </div>
+        </footer>
+    </div>
+
+    <!-- Interactive Simulation Panel (Fixed Bottom-Right) -->
+    <div class="simulation-panel">
+        <div class="sim-panel-header">
+            <span>SIMULATION MODULE</span>
+            <i class="fas fa-sliders"></i>
+        </div>
+        <div class="sim-controls">
+            <button class="sim-btn trigger-btn" id="sim-fault" onclick="triggerFaultState()">
+                <i class="fas fa-skull-crossbones"></i> TRIGGER FAULT
+            </button>
+            <button class="sim-btn reset-btn" id="sim-reset" onclick="resetSystemState()">
+                <i class="fas fa-rotate-right"></i> RESET GRID
+            </button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
